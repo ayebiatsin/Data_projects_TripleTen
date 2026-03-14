@@ -1,0 +1,88 @@
+"""
+bootstrap.py
+------------
+Bootstrap profit simulation for OilyGiant oil well selection.
+
+Business constraints:
+    - Budget: $100M for 200 wells
+    - Revenue per 1,000 barrels: $4,500
+    - Minimum volume per well to break even: ~111.1 thousand barrels
+    - Strategy: Predict volumes for all wells in a region,
+      select the top 200, simulate profit via bootstrapping.
+"""
+
+import numpy as np
+import pandas as pd
+
+
+# Business parameters
+BUDGET = 100_000_000          # Total drilling budget (USD)
+WELLS_TO_DRILL = 200          # Number of wells selected per region
+REVENUE_PER_UNIT = 4_500      # Revenue per 1,000 barrels (USD)
+BOOTSTRAP_ITERATIONS = 1_000  # Number of bootstrap samples
+BOOTSTRAP_SAMPLE_SIZE = 500   # Wells sampled per iteration before selecting top 200
+RANDOM_STATE = 42
+
+
+def calculate_profit(predicted_volumes: np.ndarray, actual_volumes: pd.Series) -> float:
+    """Calculate profit for the top predicted wells using actual volumes.
+
+    Selects the top WELLS_TO_DRILL wells by predicted volume,
+    then computes profit using their actual volumes.
+
+    Args:
+        predicted_volumes: Array of predicted oil volumes for all wells.
+        actual_volumes: Series of actual oil volumes aligned with predictions.
+
+    Returns:
+        Profit in USD after subtracting the drilling budget.
+    """
+    # Identify indices of the top predicted wells
+    top_indices = np.argsort(predicted_volumes)[-WELLS_TO_DRILL:]
+    selected_actual = actual_volumes.iloc[top_indices]
+
+    total_revenue = selected_actual.sum() * REVENUE_PER_UNIT
+    return total_revenue - BUDGET
+
+
+def run_bootstrap(predictions: np.ndarray, actuals: pd.Series, random_state: int = RANDOM_STATE) -> dict:
+    """Run bootstrap simulation to estimate profit distribution for a region.
+
+    Each iteration:
+        1. Randomly samples BOOTSTRAP_SAMPLE_SIZE wells from the validation set.
+        2. Selects the top WELLS_TO_DRILL by predicted volume.
+        3. Computes profit using actual volumes of those top wells.
+
+    Args:
+        predictions: Array of predicted oil volumes for validation wells.
+        actuals: Series of actual oil volumes aligned with predictions.
+        random_state: Random seed for reproducibility.
+
+    Returns:
+        Dict with profit array, mean profit, 95% confidence interval,
+        and loss probability.
+    """
+    rng = np.random.default_rng(random_state)
+    profits = []
+
+    actuals_reset = actuals.reset_index(drop=True)
+
+    for _ in range(BOOTSTRAP_ITERATIONS):
+        sample_indices = rng.choice(len(predictions), size=BOOTSTRAP_SAMPLE_SIZE, replace=True)
+        sample_preds = predictions[sample_indices]
+        sample_actuals = actuals_reset.iloc[sample_indices]
+
+        profit = calculate_profit(sample_preds, sample_actuals)
+        profits.append(profit)
+
+    profits = np.array(profits)
+
+    return {
+        "profits": profits,
+        "mean_profit": round(profits.mean(), 2),
+        "confidence_interval": (
+            round(np.percentile(profits, 2.5), 2),
+            round(np.percentile(profits, 97.5), 2),
+        ),
+        "loss_probability": round((profits < 0).mean(), 4),
+    }

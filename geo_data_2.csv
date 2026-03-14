@@ -1,0 +1,57 @@
+"""
+test_bootstrap.py
+-----------------
+Unit tests for the bootstrap profit simulation in src/bootstrap.py.
+
+Run with: pytest tests/
+"""
+
+import numpy as np
+import pandas as pd
+import pytest
+from src.bootstrap import calculate_profit, run_bootstrap, WELLS_TO_DRILL, BUDGET, REVENUE_PER_UNIT
+
+
+def make_predictions_and_actuals(size=500):
+    """Generate deterministic predictions and actuals for testing."""
+    rng = np.random.default_rng(0)
+    predictions = rng.uniform(50, 200, size=size)
+    actuals = pd.Series(rng.uniform(50, 200, size=size))
+    return predictions, actuals
+
+
+def test_calculate_profit_selects_top_wells():
+    """Profit should be based on top WELLS_TO_DRILL predicted wells."""
+    predictions, actuals = make_predictions_and_actuals()
+    profit = calculate_profit(predictions, actuals)
+    assert isinstance(profit, float)
+
+
+def test_calculate_profit_subtracts_budget():
+    """All wells at maximum volume should yield positive profit."""
+    predictions = np.full(500, 200.0)
+    actuals = pd.Series(np.full(500, 200.0))
+    profit = calculate_profit(predictions, actuals)
+    expected_revenue = 200.0 * WELLS_TO_DRILL * REVENUE_PER_UNIT
+    assert abs(profit - (expected_revenue - BUDGET)) < 1.0
+
+
+def test_run_bootstrap_returns_correct_keys():
+    predictions, actuals = make_predictions_and_actuals()
+    result = run_bootstrap(predictions, actuals)
+    assert "mean_profit" in result
+    assert "confidence_interval" in result
+    assert "loss_probability" in result
+    assert "profits" in result
+
+
+def test_run_bootstrap_profit_array_length():
+    predictions, actuals = make_predictions_and_actuals()
+    result = run_bootstrap(predictions, actuals)
+    assert len(result["profits"]) == 1000
+
+
+def test_loss_probability_is_valid_proportion():
+    predictions, actuals = make_predictions_and_actuals()
+    result = run_bootstrap(predictions, actuals)
+    assert 0.0 <= result["loss_probability"] <= 1.0

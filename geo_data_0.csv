@@ -1,0 +1,56 @@
+"""
+test_model.py
+-------------
+Unit tests for src/model.py in the OilyGiant project.
+
+Run with: pytest tests/
+"""
+
+import pandas as pd
+import numpy as np
+from src.model import prepare_data, train, evaluate
+
+
+def make_region_df(size=200):
+    """Generate a synthetic region DataFrame for testing."""
+    rng = np.random.default_rng(42)
+    return pd.DataFrame({
+        "id": [f"well_{i}" for i in range(size)],
+        "f0": rng.uniform(-1, 1, size),
+        "f1": rng.uniform(-1, 1, size),
+        "f2": rng.uniform(-1, 1, size),
+        "product": rng.uniform(0, 200, size),
+    })
+
+
+def test_prepare_data_split_sizes():
+    df = make_region_df()
+    X_train, X_val, y_train, y_val = prepare_data(df, test_size=0.25)
+    assert len(X_train) == len(y_train)
+    assert len(X_val) == len(y_val)
+    assert len(X_train) + len(X_val) == len(df)
+
+
+def test_train_returns_fitted_model():
+    df = make_region_df()
+    X_train, X_val, y_train, y_val = prepare_data(df)
+    model = train(X_train, y_train)
+    assert hasattr(model, "coef_"), "Model should be fitted with coef_ attribute"
+
+
+def test_evaluate_returns_required_keys():
+    df = make_region_df()
+    X_train, X_val, y_train, y_val = prepare_data(df)
+    model = train(X_train, y_train)
+    result = evaluate(model, X_val, y_val)
+    assert "rmse" in result
+    assert "predictions" in result
+    assert "mean_predicted_volume" in result
+
+
+def test_evaluate_predictions_length_matches_validation():
+    df = make_region_df()
+    X_train, X_val, y_train, y_val = prepare_data(df)
+    model = train(X_train, y_train)
+    result = evaluate(model, X_val, y_val)
+    assert len(result["predictions"]) == len(y_val)

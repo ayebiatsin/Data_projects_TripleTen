@@ -1,0 +1,48 @@
+"""
+data_loader.py
+--------------
+Loads the OilyGiant geological survey datasets.
+
+Expected files in /data:
+    - geo_data_0.csv  (Region 0)
+    - geo_data_1.csv  (Region 1)
+    - geo_data_2.csv  (Region 2)
+
+Each file contains:
+    id      — well identifier
+    f0, f1, f2 — geological features (anonymized)
+    product — oil volume in the well (target, thousands of barrels)
+"""
+
+import pandas as pd
+
+
+def load_region(filepath: str) -> pd.DataFrame:
+    """Load a single region's geological survey data.
+
+    Args:
+        filepath: Path to the region CSV file.
+
+    Returns:
+        DataFrame with geological features and product target column.
+
+    Raises:
+        FileNotFoundError: If the file does not exist at the given path.
+    """
+    return pd.read_csv(filepath)
+
+
+def load_all_regions(data_dir: str) -> dict:
+    """Load all three region datasets into a dictionary.
+
+    Args:
+        data_dir: Path to the /data directory.
+
+    Returns:
+        Dict with keys 'region_0', 'region_1', 'region_2' mapping to DataFrames.
+    """
+    return {
+        "region_0": load_region(f"{data_dir}/geo_data_0.csv"),
+        "region_1": load_region(f"{data_dir}/geo_data_1.csv"),
+        "region_2": load_region(f"{data_dir}/geo_data_2.csv"),
+    }
