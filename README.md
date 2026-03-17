@@ -9,7 +9,7 @@
 
 ## 👋 About This Repository
 
-This repository contains data analytics and machine learning projects completed as part of the **TripleTen Data Analytics Bootcamp**. Each project tackles a real-world business problem using industry-standard tools and workflows — from data cleaning and exploratory analysis to predictive modeling and evaluation.
+This repository contains data analytics and machine learning projects completed as part of the **TripleTen Data Analytics Bootcamp**. Each project tackles a real-world business problem using industry-standard tools and workflows ,from data cleaning and exploratory analysis to predictive modeling and evaluation.
 
 I'm a U.S. Navy veteran transitioning into data analytics. My military background gives me a strong foundation in precision, process, and accountability — values I bring directly into every analysis I build.
 
@@ -86,17 +86,6 @@ data-projects-tripleten/
 │
 └── README.md               ← You are here
 ```
-
----
-
-## 👤 About Me
-
-**Marc**  
-U.S. Navy Veteran → Data Analyst  
-Currently completing the TripleTen Data Analytics Bootcamp with hands-on experience in Python, SQL, Excel, EDA, and predictive modeling.
-
-[![GitHub](https://img.shields.io/badge/GitHub-Portfolio-black?style=flat-square&logo=github)](https://github.com/YOUR_USERNAME)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://linkedin.com/in/YOUR_PROFILE)
 
 ---
 
