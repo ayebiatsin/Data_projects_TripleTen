@@ -172,8 +172,6 @@ In Jupyter: `Kernel → Restart & Run All`
 U.S. Navy Veteran → Data Analyst  
 TripleTen Data Analytics Bootcamp
 
-[![GitHub](https://img.shields.io/badge/GitHub-Portfolio-black?style=flat-square&logo=github)](https://github.com/YOUR_USERNAME)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://linkedin.com/in/YOUR_PROFILE)
 
 ---
 
